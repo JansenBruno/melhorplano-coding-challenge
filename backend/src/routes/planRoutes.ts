@@ -1,14 +1,10 @@
-import { Router } from "express";
-import {
-  allPlans,
-  filteredPlans,
-  planSearch,
-} from "../controllers/planController";
+import { Router } from 'express';
+import { PlanController } from '../controllers/planController';
 
 const router = Router();
 
-router.get("/", allPlans);
-router.get("/filtered", filteredPlans);
-router.get("/search", planSearch);
+router.get('/', PlanController.getAllPlans);
+router.get('/filtered', PlanController.getFilteredPlans);
+router.get('/search', PlanController.searchPlans);
 
 export default router;
