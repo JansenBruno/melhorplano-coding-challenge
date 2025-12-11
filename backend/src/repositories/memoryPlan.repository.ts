@@ -1,6 +1,6 @@
 import { IPlanRepository } from './interfaces/plan.repository.interface';
 import { Plan } from '../models/plan';
-import { PlanSearchFilters } from '../types/planSearchFilters.type';
+import { PlanSearchFilters } from '../types/planSearchFilters.type'; // Esta linha estava errada
 import { allPlansMock } from '../data';
 
 export class MemoryPlanRepository implements IPlanRepository {

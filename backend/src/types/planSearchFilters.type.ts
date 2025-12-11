@@ -17,3 +17,25 @@ export interface PaginatedPlans {
   pageSize: number;
   totalPages: number;
 }
+
+export interface UserPreferences {
+  city: string;                   
+  maxBudget?: number;            
+  usageProfile?: 'basic' | 'medium' | 'heavy' | 'family' | 'gaming';
+  preferredOperators?: string[]; 
+}
+
+
+export interface PlanRecommendation {
+  plan: Plan;
+  score: number;                   
+  reasons: string[];              
+  warnings?: string[];            
+}
+
+export interface RecommendationResponse {
+  topRecommendation: PlanRecommendation;
+  allRecommendations: PlanRecommendation[];
+  totalResults: number;
+  preferencesUsed: UserPreferences;
+}
