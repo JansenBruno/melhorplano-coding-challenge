@@ -46,7 +46,7 @@ export interface ProfileInfo {
   minData: number;
 }
 
-// Constantes
+
 export const PROFILES: ProfileInfo[] = [
   {
     id: 'basic',

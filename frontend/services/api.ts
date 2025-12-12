@@ -6,7 +6,6 @@ const api = axios.create({
 
 export default api;
 
-// ==================== TIPOS EXISTENTES ====================
 export interface PlanSearchParams {
   minPrice?: number;
   maxPrice?: number;
@@ -27,7 +26,6 @@ export interface PaginatedPlans {
   totalPages: number;
 }
 
-// ==================== NOVOS TIPOS PARA RECOMENDAÇÃO ====================
 export interface Plan {
   id: number;
   name: string;
@@ -39,17 +37,17 @@ export interface Plan {
 }
 
 export interface UserPreferences {
-  city: string;                    // OBRIGATÓRIO
-  maxBudget?: number;              // Orçamento máximo
+  city: string;                    
+  maxBudget?: number;             
   usageProfile?: 'basic' | 'medium' | 'heavy' | 'family' | 'gaming';
-  preferredOperators?: string[];   // Operadoras preferidas
+  preferredOperators?: string[];  
 }
 
 export interface PlanRecommendation {
   plan: Plan;
-  score: number;                   // Pontuação 0-100
-  reasons: string[];               // Motivos da recomendação
-  warnings?: string[];             // Alertas/considerações
+  score: number;                
+  reasons: string[];               
+  warnings?: string[];             
 }
 
 export interface RecommendationResponse {
@@ -69,14 +67,11 @@ export interface SystemMetadata {
   }>;
 }
 
-// ==================== FUNÇÕES DE API ====================
-// Funções existentes (mantidas)
 export async function fetchFilteredPlans(params: PlanSearchParams): Promise<PaginatedPlans> {
   const { data } = await api.get('/plans/search', { params });
   return data;
 }
 
-// NOVAS FUNÇÕES PARA RECOMENDAÇÃO
 export async function fetchRecommendations(params: UserPreferences): Promise<RecommendationResponse> {
   const { data } = await api.get('/plans/recommendations', { params });
   return data;
@@ -87,19 +82,16 @@ export async function fetchRecommendationsMetadata(): Promise<SystemMetadata> {
   return data;
 }
 
-// Função para enviar via POST (alternativa)
 export async function postRecommendations(preferences: UserPreferences): Promise<RecommendationResponse> {
   const { data } = await api.post('/plans/recommendations', preferences);
   return data;
 }
 
-// Função auxiliar para buscar todos os planos
 export async function fetchAllPlans(): Promise<Plan[]> {
   const { data } = await api.get('/plans');
   return data;
 }
 
-// Função auxiliar para buscar cidades disponíveis
 export async function fetchAvailableCities(): Promise<string[]> {
   try {
     const { data } = await api.get('/plans/recommendations/metadata');
@@ -110,7 +102,6 @@ export async function fetchAvailableCities(): Promise<string[]> {
   }
 }
 
-// Função auxiliar para buscar operadoras disponíveis
 export async function fetchAvailableOperators(): Promise<string[]> {
   try {
     const { data } = await api.get('/plans/recommendations/metadata');
