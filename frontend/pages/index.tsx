@@ -54,7 +54,6 @@ export default function Home() {
   }, [filters]);
 
   useEffect(() => {
-    // Buscar nomes dos planos ao montar
     api
       .get("/plans/search", { params: { page: 1, pageSize: 1000 } })
       .then((res) => {

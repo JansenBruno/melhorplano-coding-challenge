@@ -1,4 +1,5 @@
 import styles from "../styles/Menu.module.scss";
+import Link from 'next/link';
 
 export default function Menu() {
   return (
@@ -31,6 +32,22 @@ export default function Menu() {
           </li>
           <li>
             <a href="#">GUIAS E FERRAMENTAS</a>
+          </li>
+          <li>
+            <Link 
+              href="/recommend" 
+              style={{ 
+                color: '#ff6b35', 
+                fontWeight: 'bold',
+                background: '#fff3e0',
+                padding: '8px 16px',
+                borderRadius: '20px',
+                textDecoration: 'none',
+                display: 'inline-block'
+              }}
+            >
+              🎯 RECOMENDAÇÃO INTELIGENTE
+            </Link>
           </li>
           <li>
             <a href="#">CADASTRAR PROVEDOR</a>

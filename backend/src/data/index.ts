@@ -1,0 +1,1 @@
+export { allPlansMock } from './plans.mock.data';
