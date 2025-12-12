@@ -1,10 +1,20 @@
 {
-  "name": "backend",
+  "name": "melhorplano-backend",
   "version": "1.0.0",
-  "main": "src/index.ts",
-  "license": "MIT",
+  "description": "API de recomendações de planos de internet",
+  "main": "dist/index.js",
   "scripts": {
-    "dev": "ts-node-dev src/index.ts"
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "nodemon src/index.ts",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:unit": "jest src/__tests__/unit",
+    "test:integration": "jest src/__tests__/integration",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -12,9 +22,16 @@
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
-    "@types/express": "^4.17.21",
-    "@types/node": "^20.11.30",
-    "ts-node-dev": "^2.0.0",
-    "typescript": "^5.4.2"
+    "@types/express": "^4.17.25",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^20.19.26",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "eslint": "^8.57.1",
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.11",
+    "ts-jest": "^29.4.6",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
   }
 }

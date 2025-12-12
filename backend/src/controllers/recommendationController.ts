@@ -5,16 +5,11 @@ import { UserPreferences, RecommendationResponse } from '../types/planSearchFilt
 const recommendationService = new RecommendationService();
 
 export class RecommendationController {
-  /**
-   * Endpoint principal de recomendações
-   * Suporta tanto GET (query params) quanto POST (body)
-   */
+  
   static getRecommendedPlans(req: Request, res: Response) {
     try {
-      // Suporta tanto POST quanto GET
       const params = req.method === 'POST' ? req.body : req.query;
       
-      // Extrair e validar preferências
       const preferences: UserPreferences = {
         city: params.city as string,
         maxBudget: params.maxBudget ? Number(params.maxBudget) : undefined,
@@ -24,7 +19,6 @@ export class RecommendationController {
           : undefined
       };
 
-      // Validação básica
       if (!preferences.city) {
         return res.status(400).json({
           error: 'Cidade é obrigatória',
@@ -32,7 +26,6 @@ export class RecommendationController {
         });
       }
 
-      // Obter recomendações
       const recommendations = recommendationService.recommend(preferences);
 
       if (recommendations.length === 0) {
@@ -42,7 +35,6 @@ export class RecommendationController {
         });
       }
 
-      // Preparar resposta
       const response: RecommendationResponse = {
         topRecommendation: recommendations[0],
         allRecommendations: recommendations,
@@ -55,7 +47,6 @@ export class RecommendationController {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
       
-      // Tratar erros específicos
       if (errorMessage.includes('Nenhum plano encontrado')) {
         return res.status(404).json({
           error: errorMessage,
@@ -70,9 +61,7 @@ export class RecommendationController {
     }
   }
 
-  /**
-   * Endpoint para obter metadados (cidades e operadoras disponíveis)
-   */
+  
   static getMetadata(req: Request, res: Response) {
     try {
       res.json({
@@ -94,4 +83,4 @@ export class RecommendationController {
       });
     }
   }
-}
+}   
