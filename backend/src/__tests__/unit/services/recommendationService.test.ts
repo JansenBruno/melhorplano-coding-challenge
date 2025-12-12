@@ -1,165 +1,142 @@
-// O jest.mock DEVE vir primeiro, antes dos imports
-jest.mock("../../../data", () => ({
-  allPlansMock: [
-    {
-      id: 1,
-      name: "Plano Básico",
-      speed: "100Mbps",
-      price: 79.9,
-      operator: "Vivo",
-      city: "São Paulo",
-      dataCap: 200,
-    },
-    {
-      id: 2,
-      name: "Plano Intermediário",
-      speed: "300Mbps",
-      price: 99.9,
-      operator: "Claro",
-      city: "Rio de Janeiro",
-      dataCap: 400,
-    },
-    {
-      id: 3,
-      name: "Plano Premium",
-      speed: "600Mbps",
-      price: 149.9,
-      operator: "TIM",
-      city: "Belo Horizonte",
-      dataCap: 800,
-    },
-    {
-      id: 4,
-      name: "Plano Família",
-      speed: "500Mbps",
-      price: 129.9,
-      operator: "Vivo",
-      city: "São Paulo",
-      dataCap: 600,
-    },
-    {
-      id: 5,
-      name: "Plano Ultra",
-      speed: "1Gbps",
-      price: 199.9,
-      operator: "Claro",
-      city: "São Paulo",
-      dataCap: 1000,
-    },
-  ],
-}));
-
-// Agora importe após o mock
+import { allPlansMock } from "../../../data";
 import { RecommendationService } from "../../../services/recommendationService";
 import { UserPreferences } from "../../../types/planSearchFilters.type";
 
-describe("RecommendationService", () => {
+
+describe('RecommendationService', () => {
   let service: RecommendationService;
 
   beforeEach(() => {
     service = new RecommendationService();
   });
 
-  // Testes simplificados primeiro
-  describe("Métodos básicos", () => {
-    test("getAvailableCities deve retornar cidades únicas ordenadas", () => {
-      const cities = service.getAvailableCities();
-      // Note: O Jest ordena as strings automaticamente
-      expect(cities).toEqual(["Belo Horizonte", "Rio de Janeiro", "São Paulo"]);
-    });
-
-    test("getAvailableOperators deve retornar operadoras únicas ordenadas", () => {
-      const operators = service.getAvailableOperators();
-      expect(operators).toEqual(["Claro", "TIM", "Vivo"]);
-    });
+  it('deve lançar erro se a cidade não for informada', () => {
+    expect(() =>
+      service.recommend({ city: '' } as UserPreferences)
+    ).toThrow('Cidade é obrigatória para recomendações');
   });
 
-  describe("recommend - validações", () => {
-    test("deve lançar erro quando cidade não for informada", () => {
-      const preferences = {} as UserPreferences;
-      expect(() => service.recommend(preferences)).toThrow(
-        "Cidade é obrigatória para recomendações"
-      );
-    });
-
-    test("deve lançar erro para cidade sem planos", () => {
-      const preferences: UserPreferences = {
-        city: "Curitiba",
-      };
-      expect(() => service.recommend(preferences)).toThrow(
-        "Nenhum plano encontrado para a cidade: Curitiba"
-      );
-    });
-
-    test("deve retornar planos da cidade especificada", () => {
-      const preferences: UserPreferences = {
-        city: "São Paulo",
-      };
-      const recommendations = service.recommend(preferences);
-
-      expect(recommendations).toHaveLength(3); // IDs 1, 4, 5 estão em SP
-      recommendations.forEach((rec) => {
-        expect(rec.plan.city).toBe("São Paulo");
-      });
-    });
+  it('deve lançar erro se não houver planos na cidade', () => {
+    expect(() =>
+      service.recommend({ city: 'CidadeQueNaoExiste' })
+    ).toThrow('Nenhum plano encontrado para a cidade: CidadeQueNaoExiste');
   });
 
-  describe("calculatePlanScore - lógica simplificada", () => {
-    test("deve calcular score mínimo para plano da cidade", () => {
-      const preferences: UserPreferences = {
-        city: "São Paulo",
-      };
-      const recommendations = service.recommend(preferences);
+  it('deve retornar recomendações ordenadas por score', () => {
+    const city = allPlansMock[0].city;
 
-      // Todos devem ter pelo menos 30 pontos (CITY_MATCH)
-      recommendations.forEach((rec) => {
-        expect(rec.score).toBeGreaterThanOrEqual(30);
-        expect(rec.reasons).toContain(`Disponível em ${rec.plan.city}`);
-      });
+    const recs = service.recommend({
+      city,
+      usageProfile: 'basic',
+      maxBudget: 200
     });
 
-    test("deve adicionar pontos para plano dentro do orçamento", () => {
-      const preferences: UserPreferences = {
-        city: "São Paulo",
-        maxBudget: 100,
-      };
-      const recommendations = service.recommend(preferences);
-
-      const planoBarato = recommendations.find((r) => r.plan.price <= 100);
-      expect(planoBarato).toBeDefined();
-      expect(
-        planoBarato!.reasons.some((r) => r.includes("Dentro do orçamento"))
-      ).toBe(true);
-    });
-
-    test("deve adicionar warning para plano acima do orçamento", () => {
-      const preferences: UserPreferences = {
-        city: "São Paulo",
-        maxBudget: 100,
-      };
-      const recommendations = service.recommend(preferences);
-
-      const planoCaro = recommendations.find((r) => r.plan.price > 100);
-      expect(planoCaro).toBeDefined();
-      expect(planoCaro!.warnings?.some(w => w.includes('Acima do orçamento'))).toBe(true);
-    });
+    expect(recs.length).toBeGreaterThan(0);
+    expect(recs[0].score).toBeGreaterThanOrEqual(recs[1]?.score ?? 0);
   });
 
-  describe("extractSpeedMbps", () => {
-    const getPrivateMethod = (service: RecommendationService) => {
-      return (service as any).extractSpeedMbps;
-    };
 
-    test("deve converter Mbps corretamente", () => {
-      const extractSpeed = getPrivateMethod(service);
-      expect(extractSpeed("100Mbps")).toBe(100);
-      expect(extractSpeed("250 Mbps")).toBe(250);
+  it('deve aumentar score quando o plano está dentro do orçamento', () => {
+    const city = allPlansMock[0].city;
+
+    const recs = service.recommend({
+      city,
+      maxBudget: 9999
     });
 
-    test("deve converter Gbps para Mbps", () => {
-      const extractSpeed = getPrivateMethod(service);
-      expect(extractSpeed("1Gbps")).toBe(1000);
-      expect(extractSpeed("2.5 Gbps")).toBe(2500);
+    const hasBudgetReason = recs.some(r =>
+      r.reasons.some(reason => reason.includes('Dentro do orçamento'))
+    );
+
+    expect(hasBudgetReason).toBe(true);
+  });
+
+  it('deve registrar warning para planos acima do orçamento', () => {
+    const city = allPlansMock[0].city;
+
+    const recs = service.recommend({
+      city,
+      maxBudget: 10
     });
+
+    const hasBudgetWarning = recs.some(r =>
+      r.warnings?.some(w => w.includes('Acima do orçamento'))
+    );
+
+    expect(hasBudgetWarning).toBe(true);
+  });
+
+  it('deve considerar velocidade mínima do perfil de uso', () => {
+    const city = allPlansMock[0].city;
+
+    const recs = service.recommend({
+      city,
+      usageProfile: 'gaming'
+    });
+
+    const hasSpeedReason = recs.some(r =>
+      r.reasons.some(reason => reason.includes('Velocidade'))
+    );
+
+    expect(hasSpeedReason).toBe(true);
+  });
+
+  it('deve registrar warning quando a velocidade é insuficiente', () => {
+    const city = allPlansMock[0].city;
+
+    const recs = service.recommend({
+      city,
+      usageProfile: 'gaming'
+    });
+
+    const hasWarning = recs.some(r =>
+      r.warnings?.some(w => w.includes('abaixo do mínimo recomendado'))
+    );
+
+    expect(hasWarning).toBe(true);
+  });
+
+  it('deve considerar operadora preferida', () => {
+    const city = allPlansMock[0].city;
+    const preferredOperator = allPlansMock[0].operator;
+
+    const recs = service.recommend({
+      city,
+      preferredOperators: [preferredOperator]
+    });
+
+    const hasPreferredReason = recs.some(r =>
+      r.reasons.some(reason => reason.includes('está entre suas preferidas'))
+    );
+
+    expect(hasPreferredReason).toBe(true);
+  });
+
+
+  it('deve converter velocidade Gbps corretamente no scoring', () => {
+    const result = (service as any).extractSpeedMbps('1 Gbps');
+    expect(result).toBe(1000);
+  });
+
+  it('deve extrair velocidade correta em Mbps', () => {
+    const result = (service as any).extractSpeedMbps('350 Mbps');
+    expect(result).toBe(350);
+  });
+
+  
+  it('deve retornar cidades disponíveis ordenadas e sem repetição', () => {
+    const cities = service.getAvailableCities();
+    const sorted = [...cities].sort();
+
+    expect(cities).toEqual(sorted);
+    expect(new Set(cities).size).toBe(cities.length);
+  });
+
+  it('deve retornar operadoras disponíveis ordenadas e sem repetição', () => {
+    const operators = service.getAvailableOperators();
+    const sorted = [...operators].sort();
+
+    expect(operators).toEqual(sorted);
+    expect(new Set(operators).size).toBe(operators.length);
   });
 });

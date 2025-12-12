@@ -1,4 +1,3 @@
-// Configurações simplificadas para cada perfil
 export const PROFILE_CONFIG = {
   basic: {
     name: "Uso Básico",
@@ -32,16 +31,14 @@ export const PROFILE_CONFIG = {
   }
 };
 
-// Pesos para cálculo do score (podem ser ajustados)
 export const SCORE_WEIGHTS = {
-  CITY_MATCH: 30,          // Plano está na cidade solicitada
-  BUDGET_MATCH: 25,        // Plano está dentro do orçamento
-  SPEED_PROFILE_MATCH: 20, // Velocidade adequada ao perfil
-  DATA_PROFILE_MATCH: 15,  // Franquia adequada ao perfil
-  OPERATOR_PREFERENCE: 10  // Operadora é preferida
+  CITY_MATCH: 30,        
+  BUDGET_MATCH: 25,       
+  SPEED_PROFILE_MATCH: 20,
+  DATA_PROFILE_MATCH: 15, 
+  OPERATOR_PREFERENCE: 10   
 };
 
-// Limites para classificação
 export const SCORE_THRESHOLDS = {
   EXCELLENT: 80,
   GOOD: 60,
